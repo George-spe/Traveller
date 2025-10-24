@@ -730,7 +730,7 @@
         <div class="modal-content">
             <span class="close-modal" id="closeAirdrop">&times;</span>
             <h2 class="modal-title" id="airdropTitle">领取《Traveller》空投</h2>
-            <p id="airdropDesc">每4小时可以领取一次《Traveller》代币，每次10000枚，累积领取20次可获得价值4680元的云南双人游！</p>
+            <p id="airdropDesc">每4小时可以领取一次《Traveller》代币，每次10000枚，累积领取20次可获得价值4680元的云南双人游，累积50次可获得全国双人游！</p>
             
             <!-- 推荐链接部分 -->
             <div class="referral-section" id="referralSection">
@@ -823,7 +823,7 @@
             </div>
             
             <div class="reward-desc" id="rewardNote">
-                空投代币《Traveller》，累积领取20次将赠送价值4680元云南双人游。
+                空投代币《Traveller》，累积领取20次将赠送价值4680元云南双人游，累积50次可获得全国双人游。
             </div>
         </div>
     </div>
@@ -898,7 +898,7 @@
                 
                 // 空投窗口
                 'airdropTitle': '领取《Traveller》空投',
-                'airdropDesc': '每4小时可以领取一次《Traveller》代币，每次10000枚，累积领取20次可获得价值4680元的云南双人游！',
+                'airdropDesc': '每4小时可以领取一次《Traveller》代币，每次10000枚，累积领取20次可获得价值4680元的云南双人游，累积50次可获得全国双人游！',
                 'claimAirdrop': '领取空投 (0.001 BNB)',
                 'hoursLabel': '小时',
                 'minutesLabel': '分钟',
@@ -920,7 +920,7 @@
                 'firstGenDesc': '每次空投金额的5%',
                 'secondGen': '第二代',
                 'secondGenDesc': '每次空投金额的1%',
-                'rewardNote': '空投代币《Traveller》，累积领取20次将赠送价值4680元云南双人游。',
+                'rewardNote': '空投代币《Traveller》，累积领取20次将赠送价值4680元云南双人游，累积50次可获得全国双人游。',
                 
                 // 联系窗口
                 'contactTitle': '联系我们',
@@ -2756,7 +2756,7 @@
             document.getElementById('shareTelegram').addEventListener('click', () => {
                 const referralLink = referralLinkEl.value;
                 const shareText = currentLang === 'zh' 
-                    ? `加入探险旅行DApp，领取Traveller代币空投！每4小时可领取一次，累积20次可获得免费云南双人游！我的推荐链接：${referralLink}`
+                    ? `加入探险旅行DApp，领取Traveller代币空投！每4小时可领取一次，累积20次可获得免费云南双人游，累积50次可获得全国双人游！我的推荐链接：${referralLink}`
                     : `Join Adventure Travel DApp and claim Traveller token airdrop! Claim every 4 hours, get 20 claims for a free Yunnan trip for two! My referral link: ${referralLink}`;
                 
                 const url = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(shareText)}`;
@@ -2767,7 +2767,7 @@
             document.getElementById('shareTwitter').addEventListener('click', () => {
                 const referralLink = referralLinkEl.value;
                 const shareText = currentLang === 'zh' 
-                    ? `加入探险旅行DApp，领取Traveller代币空投！每4小时可领取一次，累积20次可获得免费云南双人游！${referralLink}`
+                    ? `加入探险旅行DApp，领取Traveller代币空投！每4小时可领取一次，累积20次可获得免费云南双人游，累积50次可获得全国双人游！${referralLink}`
                     : `Join Adventure Travel DApp and claim Traveller token airdrop! Claim every 4 hours, get 20 claims for a free Yunnan trip for two! ${referralLink}`;
                 
                 const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
@@ -2778,7 +2778,7 @@
             document.getElementById('shareWhatsapp').addEventListener('click', () => {
                 const referralLink = referralLinkEl.value;
                 const shareText = currentLang === 'zh' 
-                    ? `加入探险旅行DApp，领取Traveller代币空投！每4小时可领取一次，累积20次可获得免费云南双人游！我的推荐链接：${referralLink}`
+                    ? `加入探险旅行DApp，领取Traveller代币空投！每4小时可领取一次，累积20次可获得免费云南双人游，累积50次可获得全国双人游！我的推荐链接：${referralLink}`
                     : `Join Adventure Travel DApp and claim Traveller token airdrop! Claim every 4 hours, get 20 claims for a free Yunnan trip for two! My referral link: ${referralLink}`;
                 
                 const url = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
@@ -3113,5 +3113,6 @@
     </script>
 </body>
 </html>
+
 
 
