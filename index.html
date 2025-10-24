@@ -1,0 +1,3034 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>探险旅行DApp浏览器 - Traveller代币空投</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), 
+                        url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-attachment: fixed;
+            color: #fff;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 头部导航 */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ff8a00, #e52e71);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        
+        .logo-text {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff8a00, #e52e71);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .function-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .func-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .func-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .connect-wallet {
+            background: linear-gradient(45deg, #ff8a00, #e52e71);
+            border: none;
+            color: white;
+            padding: 10px 25px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .connect-wallet:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 138, 0, 0.4);
+        }
+        
+        /* 右下角语言切换 */
+        .lang-toggle-bottom {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            z-index: 999;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .lang-toggle-bottom:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        /* 主要内容区域 */
+        .main-content {
+            text-align: center;
+            padding: 80px 0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .main-title {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .main-desc {
+            font-size: 20px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+        
+        .explore-btn {
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
+            font-weight: 600;
+        }
+        
+        .explore-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 114, 255, 0.5);
+        }
+        
+        /* 二级窗口 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        
+        .modal-content {
+            background: rgba(30, 30, 40, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            transition: color 0.3s;
+        }
+        
+        .close-modal:hover {
+            color: white;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #ffcc00;
+        }
+        
+        /* 空投窗口样式 */
+        .airdrop-timer {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .timer-box {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            min-width: 80px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .timer-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #00c6ff;
+        }
+        
+        .timer-label {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .claim-btn {
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            font-size: 18px;
+            border-radius: 30px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            transition: all 0.3s;
+            width: 100%;
+            font-weight: 600;
+        }
+        
+        .claim-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        
+        .claim-btn:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 114, 255, 0.4);
+        }
+        
+        /* 推荐链接部分样式 */
+        .referral-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .referral-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffcc00;
+            margin: 5px 0;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+        
+        .share-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .share-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .share-btn.telegram {
+            background: #0088cc;
+        }
+        
+        .share-btn.twitter {
+            background: #1da1f2;
+        }
+        
+        .share-btn.whatsapp {
+            background: #25d366;
+        }
+        
+        .invite-link {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .invite-link input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .copy-btn {
+            background: #28a745;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: #218838;
+        }
+        
+        /* 奖励窗口样式 */
+        .reward-levels {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            gap: 15px;
+        }
+        
+        .reward-level {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            flex: 1;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .reward-level h3 {
+            margin-bottom: 10px;
+            color: #ffcc00;
+        }
+        
+        .reward-desc {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        /* 联系我们窗口样式 */
+        .contact-links {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .contact-link {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .contact-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+        
+        .contact-icon {
+            font-size: 24px;
+            width: 40px;
+            text-align: center;
+        }
+        
+        /* 成功提示 */
+        .success-modal .modal-content {
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 60px;
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+        
+        /* 奖励信息样式 */
+        .reward-info {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .reward-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffcc00;
+            margin: 10px 0;
+        }
+        
+        /* 移动端菜单按钮 */
+        .mobile-menu-toggle {
+            display: none;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .mobile-menu-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* 加载指示器 */
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .main-title {
+                font-size: 36px;
+            }
+            
+            .main-desc {
+                font-size: 18px;
+            }
+            
+            /* 移动端导航栏布局 */
+            .nav-right {
+                position: relative;
+            }
+            
+            .function-buttons {
+                display: none;
+                position: absolute;
+                top: 60px;
+                right: 0;
+                background: rgba(30, 30, 40, 0.95);
+                border-radius: 15px;
+                padding: 15px;
+                flex-direction: column;
+                width: 200px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                z-index: 100;
+            }
+            
+            .function-buttons.active {
+                display: flex;
+            }
+            
+            .mobile-menu-toggle {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+            
+            .connect-wallet {
+                margin-top: 10px;
+            }
+            
+            .reward-levels {
+                flex-direction: column;
+            }
+            
+            .lang-toggle-bottom {
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 15px;
+            }
+            
+            .share-buttons {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .main-title {
+                font-size: 30px;
+            }
+            
+            .main-desc {
+                font-size: 16px;
+            }
+            
+            .explore-btn {
+                padding: 12px 30px;
+                font-size: 16px;
+            }
+            
+            .logo-text {
+                font-size: 20px;
+            }
+            
+            .logo-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部导航 -->
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-mountain"></i>
+                </div>
+                <div class="logo-text">探险旅行</div>
+            </div>
+            
+            <div class="nav-right">
+                <div class="function-buttons" id="functionButtons">
+                    <button class="func-btn" id="airdropBtn">
+                        <i class="fas fa-gift"></i>
+                        <span>领取空投</span>
+                    </button>
+                    <button class="func-btn" id="rewardBtn">
+                        <i class="fas fa-award"></i>
+                        <span>邀请奖励</span>
+                    </button>
+                    <button class="func-btn" id="contactBtn">
+                        <i class="fas fa-address-book"></i>
+                        <span>联系我们</span>
+                    </button>
+                    <button class="connect-wallet" id="connectWallet">
+                        <i class="fas fa-wallet"></i>
+                        <span>连接钱包</span>
+                    </button>
+                </div>
+                
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <i class="fas fa-bars"></i>
+                    <span>菜单</span>
+                </button>
+            </div>
+        </header>
+        
+        <!-- 主要内容区域 -->
+        <div class="main-content">
+            <h1 class="main-title" id="mainTitle">探索祖国大好河山</h1>
+            <p class="main-desc" id="mainDesc">连接Web3钱包，开启您的探险旅行，在诗和远方中寻找心灵的栖息地。领取Traveller代币，赢取免费旅游机会！</p>
+            <button class="explore-btn" id="exploreBtn">开始探险</button>
+        </div>
+    </div>
+    
+    <!-- 右下角语言切换 -->
+    <div class="lang-toggle-bottom" id="langToggleBottom">
+        <i class="fas fa-globe"></i>
+        <span id="langText">EN</span>
+    </div>
+    
+    <!-- 空投二级窗口 -->
+    <div class="modal" id="airdropModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeAirdrop">&times;</span>
+            <h2 class="modal-title" id="airdropTitle">领取《Traveller》空投</h2>
+            <p id="airdropDesc">每4小时可以领取一次《Traveller》代币，累积领取20次可获得价值4680元的云南双人游！</p>
+            
+            <!-- 推荐链接部分 -->
+            <div class="referral-section" id="referralSection">
+                <h3 id="referralStatsTitle">我的推荐统计</h3>
+                <div class="referral-stats">
+                    <div class="stat-card">
+                        <div class="stat-value" id="firstGenCount">0</div>
+                        <div class="stat-label" id="firstGenLabel">第一代推荐</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="secondGenCount">0</div>
+                        <div class="stat-label" id="secondGenLabel">第二代推荐</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalRewards">0</div>
+                        <div class="stat-label" id="totalRewardsLabel">累计奖励</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="claimedRewards">0</div>
+                        <div class="stat-label" id="claimedRewardsLabel">已领取奖励</div>
+                    </div>
+                </div>
+                
+                <h4 id="shareTitle">分享推荐链接</h4>
+                <div class="invite-link">
+                    <input type="text" id="referralLink" value="加载中..." readonly>
+                    <button class="copy-btn" id="copyReferralLink">
+                        <i class="fas fa-copy"></i>
+                        <span id="copyLinkText">复制</span>
+                    </button>
+                </div>
+                
+                <div class="share-buttons">
+                    <button class="share-btn telegram" id="shareTelegram">
+                        <i class="fab fa-telegram"></i>
+                        <span>Telegram</span>
+                    </button>
+                    <button class="share-btn twitter" id="shareTwitter">
+                        <i class="fab fa-twitter"></i>
+                        <span>Twitter</span>
+                    </button>
+                    <button class="share-btn whatsapp" id="shareWhatsapp">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>WhatsApp</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="airdrop-timer">
+                <div class="timer-box">
+                    <div class="timer-value" id="hours">04</div>
+                    <div class="timer-label" id="hoursLabel">小时</div>
+                </div>
+                <div class="timer-box">
+                    <div class="timer-value" id="minutes">00</div>
+                    <div class="timer-label" id="minutesLabel">分钟</div>
+                </div>
+                <div class="timer-box">
+                    <div class="timer-value" id="seconds">00</div>
+                    <div class="timer-label" id="secondsLabel">秒</div>
+                </div>
+            </div>
+            
+            <button class="claim-btn" id="claimAirdrop">领取空投 (0.001 BNB)</button>
+        </div>
+    </div>
+    
+    <!-- 邀请奖励二级窗口 -->
+    <div class="modal" id="rewardModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeReward">&times;</span>
+            <h2 class="modal-title" id="rewardTitle">邀请奖励说明</h2>
+            <p id="rewardDesc">当受邀用户成功领取空投时，将触发奖励。您可以随时领取奖励。</p>
+            
+            <div class="reward-info">
+                <p id="availableRewardText">可领取奖励</p>
+                <div class="reward-amount" id="rewardAmount">0 Traveller</div>
+                <button class="claim-btn" id="claimReward">领取奖励 (0.001 BNB)</button>
+            </div>
+            
+            <div class="reward-levels">
+                <div class="reward-level">
+                    <h3 id="firstGen">第一代</h3>
+                    <p id="firstGenDesc">每次空投金额的5%</p>
+                </div>
+                <div class="reward-level">
+                    <h3 id="secondGen">第二代</h3>
+                    <p id="secondGenDesc">每次空投金额的1%</p>
+                </div>
+            </div>
+            
+            <div class="reward-desc" id="rewardNote">
+                空投代币《Traveller》，累积领取20次将赠送价值4680元云南双人游。
+            </div>
+        </div>
+    </div>
+    
+    <!-- 联系我们二级窗口 -->
+    <div class="modal" id="contactModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeContact">&times;</span>
+            <h2 class="modal-title" id="contactTitle">联系我们</h2>
+            <p id="contactDesc">有任何问题，欢迎加入我们的社区</p>
+            
+            <div class="contact-links">
+                <a href="#" class="contact-link">
+                    <div class="contact-icon">
+                        <i class="fab fa-telegram"></i>
+                    </div>
+                    <div>
+                        <div id="telegramTitle">电报群</div>
+                        <div id="telegramValue">987654</div>
+                    </div>
+                </a>
+                <a href="#" class="contact-link">
+                    <div class="contact-icon">
+                        <i class="fab fa-qq"></i>
+                    </div>
+                    <div>
+                        <div id="qqTitle">QQ群</div>
+                        <div id="qqValue">12345678</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 成功提示窗口 -->
+    <div class="modal success-modal" id="successModal">
+        <div class="modal-content">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 class="modal-title" id="successTitle">领取成功！</h2>
+            <p id="successDesc">您已成功领取《Traveller》空投，下次领取将在4小时后开启。</p>
+            <button class="claim-btn" id="closeSuccess">确定</button>
+        </div>
+    </div>
+
+    <!-- 交易处理窗口 -->
+    <div class="modal" id="transactionModal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="transactionTitle">处理中</h2>
+            <div class="loader"></div>
+            <p id="transactionDesc">请确认钱包中的交易...</p>
+        </div>
+    </div>
+
+    <script>
+        // 中英文文本配置
+        const texts = {
+            'zh': {
+                // 导航
+                'langText': 'EN',
+                'airdropBtn': '领取空投',
+                'rewardBtn': '邀请奖励',
+                'contactBtn': '联系我们',
+                'connectWallet': '连接钱包',
+                'mobileMenuToggle': '菜单',
+                
+                // 主要内容
+                'mainTitle': '探索祖国大好河山',
+                'mainDesc': '连接Web3钱包，开启您的探险旅行，在诗和远方中寻找心灵的栖息地。领取Traveller代币，赢取免费旅游机会！',
+                'exploreBtn': '开始探险',
+                
+                // 空投窗口
+                'airdropTitle': '领取《Traveller》空投',
+                'airdropDesc': '每4小时可以领取一次《Traveller》代币，累积领取20次可获得价值4680元的云南双人游！',
+                'claimAirdrop': '领取空投 (0.001 BNB)',
+                'hoursLabel': '小时',
+                'minutesLabel': '分钟',
+                'secondsLabel': '秒',
+                'referralStatsTitle': '我的推荐统计',
+                'firstGenLabel': '第一代推荐',
+                'secondGenLabel': '第二代推荐',
+                'totalRewardsLabel': '累计奖励',
+                'claimedRewardsLabel': '已领取奖励',
+                'shareTitle': '分享推荐链接',
+                'copyLinkText': '复制',
+                
+                // 奖励窗口
+                'rewardTitle': '邀请奖励说明',
+                'rewardDesc': '当受邀用户成功领取空投时，将触发奖励。您可以随时领取奖励。',
+                'availableRewardText': '可领取奖励',
+                'claimReward': '领取奖励 (0.001 BNB)',
+                'firstGen': '第一代',
+                'firstGenDesc': '每次空投金额的5%',
+                'secondGen': '第二代',
+                'secondGenDesc': '每次空投金额的1%',
+                'rewardNote': '空投代币《Traveller》，累积领取20次将赠送价值4680元云南双人游。',
+                
+                // 联系窗口
+                'contactTitle': '联系我们',
+                'contactDesc': '有任何问题，欢迎加入我们的社区',
+                'telegramTitle': '电报群',
+                'telegramValue': '987654',
+                'qqTitle': 'QQ群',
+                'qqValue': '12345678',
+                
+                // 成功窗口
+                'successTitle': '领取成功！',
+                'successDesc': '您已成功领取《Traveller》空投，下次领取将在4小时后开启。',
+                'closeSuccess': '确定',
+                
+                // 交易窗口
+                'transactionTitle': '处理中',
+                'transactionDesc': '请确认钱包中的交易...'
+            },
+            'en': {
+                // 导航
+                'langText': '中文',
+                'airdropBtn': 'Claim Airdrop',
+                'rewardBtn': 'Referral Rewards',
+                'contactBtn': 'Contact Us',
+                'connectWallet': 'Connect Wallet',
+                'mobileMenuToggle': 'Menu',
+                
+                // 主要内容
+                'mainTitle': 'Explore the Beautiful Landscapes',
+                'mainDesc': 'Connect your Web3 wallet, start your adventure travel, and find peace in poetry and distant places. Claim Traveller tokens to win free travel opportunities!',
+                'exploreBtn': 'Start Exploring',
+                
+                // 空投窗口
+                'airdropTitle': 'Claim Traveller Airdrop',
+                'airdropDesc': 'Claim Traveller tokens every 4 hours. Accumulate 20 claims to get a Yunnan trip for two worth 4680 yuan!',
+                'claimAirdrop': 'Claim Airdrop (0.001 BNB)',
+                'hoursLabel': 'Hours',
+                'minutesLabel': 'Minutes',
+                'secondsLabel': 'Seconds',
+                'referralStatsTitle': 'My Referral Stats',
+                'firstGenLabel': '1st Gen Referrals',
+                'secondGenLabel': '2nd Gen Referrals',
+                'totalRewardsLabel': 'Total Rewards',
+                'claimedRewardsLabel': 'Claimed Rewards',
+                'shareTitle': 'Share Referral Link',
+                'copyLinkText': 'Copy',
+                
+                // 奖励窗口
+                'rewardTitle': 'Referral Rewards',
+                'rewardDesc': 'Rewards are triggered when your referred users successfully claim airdrops. You can claim rewards at any time.',
+                'availableRewardText': 'Available Rewards',
+                'claimReward': 'Claim Rewards (0.001 BNB)',
+                'firstGen': '1st Generation',
+                'firstGenDesc': '5% of each airdrop amount',
+                'secondGen': '2nd Generation',
+                'secondGenDesc': '1% of each airdrop amount',
+                'rewardNote': 'The airdrop token is Traveller. Accumulate 20 airdrop claims to receive a Yunnan trip for two worth 4680 yuan.',
+                
+                // 联系窗口
+                'contactTitle': 'Contact Us',
+                'contactDesc': 'Have questions? Join our community',
+                'telegramTitle': 'Telegram Group',
+                'telegramValue': '987654',
+                'qqTitle': 'QQ Group',
+                'qqValue': '12345678',
+                
+                // 成功窗口
+                'successTitle': 'Claim Successful!',
+                'successDesc': 'You have successfully claimed Traveller airdrop. Next claim will be available in 4 hours.',
+                'closeSuccess': 'OK',
+                
+                // 交易窗口
+                'transactionTitle': 'Processing',
+                'transactionDesc': 'Please confirm the transaction in your wallet...'
+            }
+        };
+
+        // 当前语言状态
+        let currentLang = 'zh';
+        
+        // 智能合约配置
+        const CONTRACT_CONFIG = {
+            // Traveller代币合约地址 (需要替换为实际部署的地址)
+            TRAVELLER_TOKEN_ADDRESS: "0x0544b910D4C7A20779a967240ebf5C3D3b6B4aBD",
+            
+            // 空投合约地址 (需要替换为实际部署的地址)
+            AIRDROP_CONTRACT_ADDRESS: "0x0544b910D4C7A20779a967240ebf5C3D3b6B4aBD",
+            
+            // BSC链配置
+            BSC_RPC_URL: "https://bsc-dataseed.binance.org/",
+            BSC_CHAIN_ID: "56",
+            
+            // 部署者钱包地址 (可更换)
+            DEPLOYER_ADDRESS: "0xEEd8a015892828A832cD2BdEb19a0FFdF33eb052",
+            
+            // 空投数量
+            AIRDROP_AMOUNT: 10000,
+            
+            // 空投费用 (BNB)
+            AIRDROP_FEE: "0.001",
+            
+            // 奖励费用 (BNB)
+            REWARD_FEE: "0.001"
+        };
+
+        // Web3和合约实例
+        let web3;
+        let userAccount;
+        let travellerTokenContract;
+        let airdropContract;
+        
+        // 智能合约ABI (简化版)
+        const TRAVELLER_TOKEN_ABI =  [
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_totalSupply",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_feeReceiver",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "referrer",
+				"type": "address"
+			}
+		],
+		"name": "AirdropClaimed",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "Approval",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_spender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_value",
+				"type": "uint256"
+			}
+		],
+		"name": "approve",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_referrer",
+				"type": "address"
+			}
+		],
+		"name": "claimAirdrop",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "claimRewards",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newFeeReceiver",
+				"type": "address"
+			}
+		],
+		"name": "FeeReceiverUpdated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "pause",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "Paused",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "referrer",
+				"type": "address"
+			}
+		],
+		"name": "ReferralRegistered",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "RewardsClaimed",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_feeReceiver",
+				"type": "address"
+			}
+		],
+		"name": "setFeeReceiver",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_value",
+				"type": "uint256"
+			}
+		],
+		"name": "transfer",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_value",
+				"type": "uint256"
+			}
+		],
+		"name": "transferFrom",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "unpause",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "Unpaused",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdrawBNB",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_token",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdrawERC20",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	},
+	{
+		"inputs": [],
+		"name": "AIRDROP_AMOUNT",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "AIRDROP_FEE",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "allowance",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "canClaimAirdrop",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "COOLDOWN_PERIOD",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "decimals",
+		"outputs": [
+			{
+				"internalType": "uint8",
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "feeReceiver",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "FIRST_GEN_REWARD",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "getAirdropCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "getNextAirdropTime",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "getUserReferralInfo",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "referrer",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "firstGenCount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "secondGenCount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "referralRewards",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "claimedRewards",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "getUserRewards",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_addr",
+				"type": "address"
+			}
+		],
+		"name": "isContract",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "paused",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "REWARD_FEE",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "SECOND_GEN_REWARD",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalSupply",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "users",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "lastAirdropTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "airdropCount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "referrer",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "referralRewards",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "claimedRewards",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "firstGenCount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "secondGenCount",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+
+        const AIRDROP_CONTRACT_ABI = [
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_totalSupply",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "_feeReceiver",
+				"type": "address"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "referrer",
+				"type": "address"
+			}
+		],
+		"name": "AirdropClaimed",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "owner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "spender",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "Approval",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_spender",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_value",
+				"type": "uint256"
+			}
+		],
+		"name": "approve",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_referrer",
+				"type": "address"
+			}
+		],
+		"name": "claimAirdrop",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "claimRewards",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newFeeReceiver",
+				"type": "address"
+			}
+		],
+		"name": "FeeReceiverUpdated",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "previousOwner",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "newOwner",
+				"type": "address"
+			}
+		],
+		"name": "OwnershipTransferred",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "pause",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "Paused",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "referrer",
+				"type": "address"
+			}
+		],
+		"name": "ReferralRegistered",
+		"type": "event"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "user",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "amount",
+				"type": "uint256"
+			}
+		],
+		"name": "RewardsClaimed",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_feeReceiver",
+				"type": "address"
+			}
+		],
+		"name": "setFeeReceiver",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_value",
+				"type": "uint256"
+			}
+		],
+		"name": "transfer",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "from",
+				"type": "address"
+			},
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "to",
+				"type": "address"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
+				"type": "uint256"
+			}
+		],
+		"name": "Transfer",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_from",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_to",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_value",
+				"type": "uint256"
+			}
+		],
+		"name": "transferFrom",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "success",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_newOwner",
+				"type": "address"
+			}
+		],
+		"name": "transferOwnership",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "unpause",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": true,
+				"internalType": "address",
+				"name": "account",
+				"type": "address"
+			}
+		],
+		"name": "Unpaused",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdrawBNB",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_token",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_amount",
+				"type": "uint256"
+			}
+		],
+		"name": "withdrawERC20",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"stateMutability": "payable",
+		"type": "receive"
+	},
+	{
+		"inputs": [],
+		"name": "AIRDROP_AMOUNT",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "AIRDROP_FEE",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "allowance",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "balanceOf",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "canClaimAirdrop",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "COOLDOWN_PERIOD",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "decimals",
+		"outputs": [
+			{
+				"internalType": "uint8",
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "feeReceiver",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "FIRST_GEN_REWARD",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "getAirdropCount",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "getNextAirdropTime",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "getUserReferralInfo",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "referrer",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "firstGenCount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "secondGenCount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "referralRewards",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "claimedRewards",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
+		"name": "getUserRewards",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_addr",
+				"type": "address"
+			}
+		],
+		"name": "isContract",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "name",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "paused",
+		"outputs": [
+			{
+				"internalType": "bool",
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "REWARD_FEE",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "SECOND_GEN_REWARD",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "symbol",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "totalSupply",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "users",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "lastAirdropTime",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "airdropCount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "address",
+				"name": "referrer",
+				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "referralRewards",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "claimedRewards",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "firstGenCount",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "secondGenCount",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+];
+        
+        // DOM元素
+        const langToggleBottom = document.getElementById('langToggleBottom');
+        const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+        const functionButtons = document.getElementById('functionButtons');
+        const connectWalletBtn = document.getElementById('connectWallet');
+        const exploreBtn = document.getElementById('exploreBtn');
+        
+        // 功能按钮
+        const airdropBtn = document.getElementById('airdropBtn');
+        const rewardBtn = document.getElementById('rewardBtn');
+        const contactBtn = document.getElementById('contactBtn');
+        
+        // 模态框
+        const airdropModal = document.getElementById('airdropModal');
+        const rewardModal = document.getElementById('rewardModal');
+        const contactModal = document.getElementById('contactModal');
+        const successModal = document.getElementById('successModal');
+        const transactionModal = document.getElementById('transactionModal');
+        
+        // 关闭按钮
+        const closeAirdrop = document.getElementById('closeAirdrop');
+        const closeReward = document.getElementById('closeReward');
+        const closeContact = document.getElementById('closeContact');
+        const closeSuccess = document.getElementById('closeSuccess');
+        
+        // 空投相关
+        const claimAirdropBtn = document.getElementById('claimAirdrop');
+        const copyReferralLinkBtn = document.getElementById('copyReferralLink');
+        
+        // 奖励相关
+        const claimRewardBtn = document.getElementById('claimReward');
+        const rewardAmountEl = document.getElementById('rewardAmount');
+        
+        // 推荐统计相关
+        const firstGenCountEl = document.getElementById('firstGenCount');
+        const secondGenCountEl = document.getElementById('secondGenCount');
+        const totalRewardsEl = document.getElementById('totalRewards');
+        const claimedRewardsEl = document.getElementById('claimedRewards');
+        const referralLinkEl = document.getElementById('referralLink');
+        
+        // 倒计时相关变量
+        let countdown;
+        const countdownDuration = 4 * 60 * 60; // 4小时，单位秒
+        let remainingTime = countdownDuration;
+        
+        // 用户数据
+        let userData = {
+            address: null,
+            referrer: null,
+            referralRewards: 0,
+            airdropCount: 0,
+            firstGenCount: 0,
+            secondGenCount: 0,
+            claimedRewards: 0
+        };
+        
+        // 初始化页面
+        function initPage() {
+            // 设置初始语言
+            updateLanguage('zh');
+            
+            // 初始化Web3
+            initWeb3();
+            
+            // 处理URL中的推荐关系
+            processReferralFromURL();
+            
+            // 检查是否有存储的倒计时
+            const savedTime = localStorage.getItem('airdropCountdown');
+            if (savedTime) {
+                const now = Math.floor(Date.now() / 1000);
+                remainingTime = parseInt(savedTime) - now;
+                
+                if (remainingTime > 0) {
+                    startCountdown();
+                    claimAirdropBtn.disabled = true;
+                } else {
+                    claimAirdropBtn.disabled = false;
+                }
+            } else {
+                claimAirdropBtn.disabled = false;
+            }
+            
+            // 更新倒计时显示
+            updateTimerDisplay();
+            
+            // 设置分享按钮
+            setupShareButtons();
+            
+            // 检查是否为移动设备
+            checkMobileView();
+        }
+        
+        // 初始化Web3
+        async function initWeb3() {
+            // 检查是否已安装MetaMask或其他Web3钱包
+            if (window.ethereum) {
+                web3 = new Web3(window.ethereum);
+                
+                try {
+                    // 请求账户访问
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    
+                    // 获取当前账户
+                    const accounts = await web3.eth.getAccounts();
+                    userAccount = accounts[0];
+                    
+                    // 更新UI
+                    updateWalletUI();
+                    
+                    // 初始化合约实例
+                    initContracts();
+                    
+                    // 监听账户变化
+                    window.ethereum.on('accountsChanged', (accounts) => {
+                        userAccount = accounts[0];
+                        updateWalletUI();
+                        loadUserData();
+                    });
+                    
+                    // 加载用户数据
+                    loadUserData();
+                    
+                } catch (error) {
+                    console.error("用户拒绝连接钱包:", error);
+                }
+            } else {
+                console.log("请安装MetaMask!");
+            }
+        }
+        
+        // 初始化合约实例
+        function initContracts() {
+            travellerTokenContract = new web3.eth.Contract(
+                TRAVELLER_TOKEN_ABI,
+                CONTRACT_CONFIG.TRAVELLER_TOKEN_ADDRESS
+            );
+            
+            airdropContract = new web3.eth.Contract(
+                AIRDROP_CONTRACT_ABI,
+                CONTRACT_CONFIG.AIRDROP_CONTRACT_ADDRESS
+            );
+        }
+        
+        // 更新钱包UI
+        function updateWalletUI() {
+            if (userAccount) {
+                const shortAddress = `${userAccount.substring(0, 6)}...${userAccount.substring(38)}`;
+                connectWalletBtn.innerHTML = `<i class="fas fa-wallet"></i><span>${shortAddress}</span>`;
+                
+                // 更新推荐链接
+                updateReferralLink();
+            }
+        }
+        
+        // 更新推荐链接
+        function updateReferralLink() {
+            if (userAccount) {
+                referralLinkEl.value = `${window.location.origin}${window.location.pathname}?ref=${userAccount}`;
+            } else {
+                referralLinkEl.value = currentLang === 'zh' ? '请先连接钱包' : 'Please connect wallet first';
+            }
+        }
+        
+        // 处理URL中的推荐关系
+        function processReferralFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const refAddress = urlParams.get('ref');
+            
+            if (refAddress && web3 && web3.utils.isAddress(refAddress)) {
+                userData.referrer = refAddress;
+                localStorage.setItem('referrer', refAddress);
+                
+                // 显示推荐提示
+                showReferralNotification(refAddress);
+            } else {
+                // 检查本地存储中是否有推荐人
+                const savedRef = localStorage.getItem('referrer');
+                if (savedRef && web3 && web3.utils.isAddress(savedRef)) {
+                    userData.referrer = savedRef;
+                }
+            }
+        }
+        
+        // 显示推荐通知
+        function showReferralNotification(referrerAddress) {
+            const shortAddress = `${referrerAddress.substring(0, 6)}...${referrerAddress.substring(38)}`;
+            const message = currentLang === 'zh' 
+                ? `您正在通过推荐人 ${shortAddress} 参与空投，成功领取后对方将获得推荐奖励！`
+                : `You are participating through referrer ${shortAddress}. They will receive rewards when you claim successfully!`;
+            
+            // 可以在这里添加一个美观的通知组件
+            alert(message);
+        }
+        
+        // 更新推荐统计
+        function updateReferralStats() {
+            firstGenCountEl.textContent = userData.firstGenCount;
+            secondGenCountEl.textContent = userData.secondGenCount;
+            totalRewardsEl.textContent = userData.referralRewards;
+            claimedRewardsEl.textContent = userData.claimedRewards;
+        }
+        
+        // 设置分享按钮
+        function setupShareButtons() {
+            // Telegram分享
+            document.getElementById('shareTelegram').addEventListener('click', () => {
+                const referralLink = referralLinkEl.value;
+                const shareText = currentLang === 'zh' 
+                    ? `加入探险旅行DApp，领取Traveller代币空投！每4小时可领取一次，累积20次可获得免费云南双人游！我的推荐链接：${referralLink}`
+                    : `Join Adventure Travel DApp and claim Traveller token airdrop! Claim every 4 hours, get 20 claims for a free Yunnan trip for two! My referral link: ${referralLink}`;
+                
+                const url = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(shareText)}`;
+                window.open(url, '_blank');
+            });
+
+            // Twitter分享
+            document.getElementById('shareTwitter').addEventListener('click', () => {
+                const referralLink = referralLinkEl.value;
+                const shareText = currentLang === 'zh' 
+                    ? `加入探险旅行DApp，领取Traveller代币空投！每4小时可领取一次，累积20次可获得免费云南双人游！${referralLink}`
+                    : `Join Adventure Travel DApp and claim Traveller token airdrop! Claim every 4 hours, get 20 claims for a free Yunnan trip for two! ${referralLink}`;
+                
+                const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
+                window.open(url, '_blank');
+            });
+
+            // WhatsApp分享
+            document.getElementById('shareWhatsapp').addEventListener('click', () => {
+                const referralLink = referralLinkEl.value;
+                const shareText = currentLang === 'zh' 
+                    ? `加入探险旅行DApp，领取Traveller代币空投！每4小时可领取一次，累积20次可获得免费云南双人游！我的推荐链接：${referralLink}`
+                    : `Join Adventure Travel DApp and claim Traveller token airdrop! Claim every 4 hours, get 20 claims for a free Yunnan trip for two! My referral link: ${referralLink}`;
+                
+                const url = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
+                window.open(url, '_blank');
+            });
+        }
+        
+        // 加载用户数据
+        async function loadUserData() {
+            if (!userAccount || !airdropContract) return;
+
+            try {
+                const rewards = await airdropContract.methods.getUserRewards(userAccount).call();
+                userData.referralRewards = web3.utils.fromWei(rewards, 'ether');
+                
+                const airdropCount = await airdropContract.methods.getAirdropCount(userAccount).call();
+                userData.airdropCount = airdropCount;
+                
+                // 获取推荐统计信息
+                const referralInfo = await airdropContract.methods.getUserReferralInfo(userAccount).call();
+                userData.firstGenCount = referralInfo.firstGenCount;
+                userData.secondGenCount = referralInfo.secondGenCount;
+                userData.claimedRewards = web3.utils.fromWei(referralInfo.claimedRewards, 'ether');
+                
+                // 更新UI
+                updateRewardAmount();
+                updateReferralStats();
+                
+                // 检查下次空投时间
+                const nextAirdropTime = await airdropContract.methods.getNextAirdropTime(userAccount).call();
+                const now = Math.floor(Date.now() / 1000);
+                
+                if (nextAirdropTime > now) {
+                    remainingTime = nextAirdropTime - now;
+                    startCountdown();
+                    claimAirdropBtn.disabled = true;
+                } else {
+                    claimAirdropBtn.disabled = false;
+                }
+                
+            } catch (error) {
+                console.error("加载用户数据失败:", error);
+            }
+        }
+        
+        // 更新页面语言
+        function updateLanguage(lang) {
+            currentLang = lang;
+            
+            Object.keys(texts[lang]).forEach(key => {
+                const elements = document.querySelectorAll(`[id="${key}"]`);
+                elements.forEach(element => {
+                    element.textContent = texts[lang][key];
+                });
+            });
+            
+            // 更新推荐链接
+            updateReferralLink();
+        }
+        
+        // 更新倒计时显示
+        function updateTimerDisplay() {
+            const hours = Math.floor(remainingTime / 3600);
+            const minutes = Math.floor((remainingTime % 3600) / 60);
+            const seconds = remainingTime % 60;
+            
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+        }
+        
+        // 开始倒计时
+        function startCountdown() {
+            clearInterval(countdown);
+            
+            countdown = setInterval(() => {
+                remainingTime--;
+                updateTimerDisplay();
+                
+                if (remainingTime <= 0) {
+                    clearInterval(countdown);
+                    claimAirdropBtn.disabled = false;
+                    localStorage.removeItem('airdropCountdown');
+                }
+            }, 1000);
+        }
+        
+        // 检查是否为移动视图
+        function checkMobileView() {
+            if (window.innerWidth <= 768) {
+                functionButtons.classList.remove('active');
+            } else {
+                functionButtons.classList.add('active');
+            }
+        }
+        
+        // 打开模态框
+        function openModal(modal) {
+            modal.style.display = 'flex';
+            
+            if (modal === rewardModal) {
+                updateRewardAmount();
+            }
+            
+            if (modal === airdropModal) {
+                updateReferralStats();
+                updateReferralLink();
+            }
+            
+            if (window.innerWidth <= 768) {
+                functionButtons.classList.remove('active');
+            }
+        }
+        
+        // 关闭模态框
+        function closeModal(modal) {
+            modal.style.display = 'none';
+        }
+        
+        // 更新奖励金额显示
+        function updateRewardAmount() {
+            rewardAmountEl.textContent = `${userData.referralRewards} Traveller`;
+            
+            if (userData.referralRewards <= 0) {
+                claimRewardBtn.disabled = true;
+            } else {
+                claimRewardBtn.disabled = false;
+            }
+        }
+        
+        // 连接钱包
+        async function connectWallet() {
+            if (window.ethereum) {
+                try {
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    const accounts = await web3.eth.getAccounts();
+                    userAccount = accounts[0];
+                    
+                    updateWalletUI();
+                    initContracts();
+                    loadUserData();
+                    
+                } catch (error) {
+                    console.error("连接钱包失败:", error);
+                    alert(currentLang === 'zh' ? '连接钱包失败' : 'Failed to connect wallet');
+                }
+            } else {
+                alert(currentLang === 'zh' ? '请安装MetaMask!' : 'Please install MetaMask!');
+            }
+        }
+        
+        // 领取空投
+        async function claimAirdrop() {
+            if (!userAccount) {
+                alert(currentLang === 'zh' ? '请先连接钱包！' : 'Please connect your wallet first!');
+                return;
+            }
+
+            if (!airdropContract) {
+                alert(currentLang === 'zh' ? '合约未初始化，请刷新页面重试' : 'Contract not initialized, please refresh the page');
+                return;
+            }
+
+            openModal(transactionModal);
+
+            try {
+                // 使用地址推荐方式
+                const referrer = userData.referrer || "0x0000000000000000000000000000000000000000";
+                
+                const result = await airdropContract.methods.claimAirdrop(referrer).send({
+                    from: userAccount,
+                    value: web3.utils.toWei(CONTRACT_CONFIG.AIRDROP_FEE, 'ether')
+                });
+
+                closeModal(transactionModal);
+                openModal(successModal);
+                
+                // 更新本地数据
+                userData.airdropCount++;
+                
+                // 开始倒计时
+                claimAirdropBtn.disabled = true;
+                remainingTime = countdownDuration;
+                
+                // 保存倒计时结束时间到本地存储
+                const endTime = Math.floor(Date.now() / 1000) + countdownDuration;
+                localStorage.setItem('airdropCountdown', endTime.toString());
+                
+                // 开始倒计时
+                startCountdown();
+                
+                // 重新加载用户数据
+                await loadUserData();
+                
+            } catch (error) {
+                closeModal(transactionModal);
+                console.error("领取空投失败:", error);
+                alert(currentLang === 'zh' ? '领取空投失败：' + error.message : 'Claim failed: ' + error.message);
+            }
+        }
+        
+        // 领取奖励
+        async function claimReward() {
+            if (!userAccount) {
+                alert(currentLang === 'zh' ? '请先连接钱包！' : 'Please connect your wallet first!');
+                return;
+            }
+            
+            if (!airdropContract) {
+                alert(currentLang === 'zh' ? '合约未初始化，请刷新页面重试' : 'Contract not initialized, please refresh the page');
+                return;
+            }
+            
+            if (userData.referralRewards <= 0) {
+                alert(currentLang === 'zh' ? '没有可领取的奖励！' : 'No rewards available to claim!');
+                return;
+            }
+            
+            openModal(transactionModal);
+            
+            try {
+                const result = await airdropContract.methods.claimRewards().send({
+                    from: userAccount,
+                    value: web3.utils.toWei(CONTRACT_CONFIG.REWARD_FEE, 'ether')
+                });
+                
+                closeModal(transactionModal);
+                
+                // 更新本地数据
+                userData.referralRewards = 0;
+                updateRewardAmount();
+                updateReferralStats();
+                
+                alert(currentLang === 'zh' ? '奖励领取成功！' : 'Rewards claimed successfully!');
+                
+            } catch (error) {
+                closeModal(transactionModal);
+                console.error("领取奖励失败:", error);
+                alert(currentLang === 'zh' ? '领取奖励失败：' + error.message : 'Claim failed: ' + error.message);
+            }
+        }
+        
+        // 事件监听器
+        langToggleBottom.addEventListener('click', () => {
+            const newLang = currentLang === 'zh' ? 'en' : 'zh';
+            updateLanguage(newLang);
+        });
+        
+        mobileMenuToggle.addEventListener('click', () => {
+            functionButtons.classList.toggle('active');
+        });
+        
+        connectWalletBtn.addEventListener('click', connectWallet);
+        
+        exploreBtn.addEventListener('click', () => {
+            openModal(airdropModal);
+        });
+        
+        // 功能按钮点击事件
+        airdropBtn.addEventListener('click', () => {
+            openModal(airdropModal);
+        });
+        
+        rewardBtn.addEventListener('click', () => {
+            openModal(rewardModal);
+        });
+        
+        contactBtn.addEventListener('click', () => {
+            openModal(contactModal);
+        });
+        
+        // 关闭按钮点击事件
+        closeAirdrop.addEventListener('click', () => {
+            closeModal(airdropModal);
+        });
+        
+        closeReward.addEventListener('click', () => {
+            closeModal(rewardModal);
+        });
+        
+        closeContact.addEventListener('click', () => {
+            closeModal(contactModal);
+        });
+        
+        closeSuccess.addEventListener('click', () => {
+            closeModal(successModal);
+        });
+        
+        // 领取按钮点击事件
+        claimAirdropBtn.addEventListener('click', claimAirdrop);
+        claimRewardBtn.addEventListener('click', claimReward);
+        
+        // 点击模态框外部关闭
+        window.addEventListener('click', (e) => {
+            if (e.target === airdropModal) {
+                closeModal(airdropModal);
+            }
+            if (e.target === rewardModal) {
+                closeModal(rewardModal);
+            }
+            if (e.target === contactModal) {
+                closeModal(contactModal);
+            }
+            if (e.target === successModal) {
+                closeModal(successModal);
+            }
+            if (e.target === transactionModal) {
+                closeModal(transactionModal);
+            }
+        });
+        
+        // 复制推荐链接
+        copyReferralLinkBtn.addEventListener('click', () => {
+            const referralLink = document.getElementById('referralLink');
+            referralLink.select();
+            document.execCommand('copy');
+            
+            const copyText = document.getElementById('copyLinkText');
+            const originalText = copyText.textContent;
+            copyText.textContent = currentLang === 'zh' ? '已复制' : 'Copied';
+            
+            setTimeout(() => {
+                copyText.textContent = originalText;
+            }, 2000);
+        });
+        
+        // 窗口大小改变时检查视图
+        window.addEventListener('resize', checkMobileView);
+        
+        // 初始化页面
+        initPage();
+    </script>
+</body>
+</html>
