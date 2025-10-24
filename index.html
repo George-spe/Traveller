@@ -187,6 +187,8 @@
             justify-content: center;
             align-items: center;
             backdrop-filter: blur(5px);
+            overflow-y: auto;
+            padding: 20px 0;
         }
         
         .modal-content {
@@ -195,10 +197,12 @@
             padding: 30px;
             width: 90%;
             max-width: 500px;
+            max-height: 90vh;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
             animation: modalFadeIn 0.3s ease-out;
+            overflow-y: auto;
         }
         
         @keyframes modalFadeIn {
@@ -214,6 +218,7 @@
             cursor: pointer;
             color: rgba(255, 255, 255, 0.7);
             transition: color 0.3s;
+            z-index: 10;
         }
         
         .close-modal:hover {
@@ -564,6 +569,50 @@
             .share-buttons {
                 flex-direction: column;
             }
+            
+            /* 移动端弹窗优化 */
+            .modal-content {
+                max-height: 85vh;
+                padding: 20px;
+                overflow-y: auto;
+                margin: 20px 0;
+            }
+            
+            .referral-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .airdrop-timer {
+                gap: 10px;
+            }
+            
+            .timer-box {
+                padding: 10px;
+                min-width: 70px;
+            }
+            
+            .timer-value {
+                font-size: 24px;
+            }
+            
+            .claim-btn {
+                position: sticky;
+                bottom: 0;
+                margin-top: 30px;
+                padding: 15px 20px;
+                font-size: 16px;
+                box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.3);
+            }
+            
+            .invite-link {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .copy-btn {
+                width: 100%;
+            }
         }
         
         @media (max-width: 480px) {
@@ -587,6 +636,38 @@
             .logo-icon {
                 width: 40px;
                 height: 40px;
+                font-size: 20px;
+            }
+            
+            .modal-content {
+                padding: 15px;
+                border-radius: 15px;
+            }
+            
+            .modal-title {
+                font-size: 20px;
+                margin-bottom: 15px;
+            }
+            
+            .referral-stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+            
+            .stat-card {
+                padding: 10px;
+            }
+            
+            .stat-value {
+                font-size: 20px;
+            }
+            
+            .timer-box {
+                min-width: 60px;
+                padding: 8px;
+            }
+            
+            .timer-value {
                 font-size: 20px;
             }
         }
