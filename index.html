@@ -464,13 +464,17 @@
             margin-bottom: 20px;
         }
         
-        /* 奖励信息样式 */
+        /* 奖励信息样式 - 固定布局 */
         .reward-info {
             background: rgba(0, 0, 0, 0.5);
             border-radius: 10px;
             padding: 15px;
             margin: 15px 0;
             text-align: center;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .reward-amount {
@@ -480,6 +484,63 @@
             margin: 10px 0;
         }
         
+        /* 按钮容器固定布局 */
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 15px;
+            width: 100%;
+        }
+        
+        /* 统一按钮样式 - 固定尺寸 */
+        .convert-btn, .burn-btn {
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            width: 100%;
+            min-height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .convert-btn {
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+        }
+        
+        .burn-btn {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+        }
+        
+        .convert-btn:hover, .burn-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+        
+        .convert-btn:disabled, .burn-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        /* 用户状态显示 */
+        .user-status-section {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
         /* 移动端菜单按钮 */
         .mobile-menu-toggle {
             display: none;
@@ -510,6 +571,30 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        
+        /* 销毁按钮样式 */
+        .burn-btn {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 18px;
+            width: 100%;
+        }
+        
+        .burn-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(255, 65, 108, 0.4);
+        }
+        
+        .burn-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
         }
         
         /* 响应式设计 */
@@ -612,6 +697,18 @@
             
             .copy-btn {
                 width: 100%;
+            }
+            
+            /* 确保在移动端奖励功能区按钮也保持一致 */
+            .reward-info .claim-btn, 
+            .reward-info .burn-btn {
+                padding: 12px 20px;
+                font-size: 16px;
+                min-height: 44px;
+            }
+            
+            .button-container {
+                flex-direction: column;
             }
         }
         
@@ -738,11 +835,7 @@
                 <div class="referral-stats">
                     <div class="stat-card">
                         <div class="stat-value" id="firstGenCount">0</div>
-                        <div class="stat-label" id="firstGenLabel">第一代推荐</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="secondGenCount">0</div>
-                        <div class="stat-label" id="secondGenLabel">第二代推荐</div>
+                        <div class="stat-label" id="firstGenLabel">推荐人数</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-value" id="totalRewards">0</div>
@@ -803,27 +896,41 @@
         <div class="modal-content">
             <span class="close-modal" id="closeReward">&times;</span>
             <h2 class="modal-title" id="rewardTitle">邀请奖励说明</h2>
-            <p id="rewardDesc">当受邀用户成功领取空投时，将触发奖励。您可以随时领取奖励。</p>
+            <p id="rewardDesc">当受邀用户成功领取空投时，将触发奖励。您可以选择将奖励转换为标准代币或销毁获取BNB。</p>
+            
+            <!-- 用户状态显示 -->
+            <div class="user-status-section">
+                <span class="stat-label" id="userStatusLabel">用户状态：</span>
+                <span class="stat-value" id="userStatus">普通用户</span>
+            </div>
             
             <div class="reward-info">
-                <p id="availableRewardText">可领取奖励</p>
-                <div class="reward-amount" id="rewardAmount">0 Traveller</div>
-                <button class="claim-btn" id="claimReward">领取奖励 (0.001 BNB)</button>
+                <p id="availableRewardText">待领取奖励</p>
+                <div class="reward-amount" id="referralRewardsAmount">0 TRAVEL</div>
+                <button class="claim-btn" id="claimReward">领取奖励到奖励余额</button>
+                
+                <p style="margin-top: 20px;" id="rewardBalanceText">奖励代币余额</p>
+                <div class="reward-amount" id="rewardTokenBalance">0 TRAVEL</div>
+                
+                <div class="button-container">
+                    <button class="convert-btn" id="convertReward">转换为标准代币</button>
+                    <button class="burn-btn" id="burnReward">销毁获取BNB</button>
+                </div>
+                
+                <p style="font-size: 12px; margin-top: 10px; opacity: 0.8;" id="burnNote">
+                    白名单：5000代币 = 0.001 BNB，普通用户：10000代币 = 0.001 BNB
+                </p>
             </div>
             
             <div class="reward-levels">
                 <div class="reward-level">
-                    <h3 id="firstGen">第一代</h3>
-                    <p id="firstGenDesc">每次空投金额的5%</p>
-                </div>
-                <div class="reward-level">
-                    <h3 id="secondGen">第二代</h3>
-                    <p id="secondGenDesc">每次空投金额的1%</p>
+                    <h3 id="firstGen">推荐奖励</h3>
+                    <p id="firstGenDesc">每次空投金额的25%</p>
                 </div>
             </div>
             
             <div class="reward-desc" id="rewardNote">
-                空投代币《Traveller》，累积领取20次将赠送价值4680元云南双人游，累积50次可获得全国双人游。
+                累积领取20次空投将赠送价值4680元云南双人游，累积50次可获得全国双人游。
             </div>
         </div>
     </div>
@@ -904,8 +1011,7 @@
                 'minutesLabel': '分钟',
                 'secondsLabel': '秒',
                 'referralStatsTitle': '我的推荐统计',
-                'firstGenLabel': '第一代推荐',
-                'secondGenLabel': '第二代推荐',
+                'firstGenLabel': '推荐人数',
                 'totalRewardsLabel': '累计奖励',
                 'claimedRewardsLabel': '已领取奖励',
                 'shareTitle': '分享推荐链接',
@@ -913,14 +1019,17 @@
                 
                 // 奖励窗口
                 'rewardTitle': '邀请奖励说明',
-                'rewardDesc': '当受邀用户成功领取空投时，将触发奖励。您可以随时领取奖励。',
-                'availableRewardText': '可领取奖励',
-                'claimReward': '领取奖励 (0.001 BNB)',
-                'firstGen': '第一代',
-                'firstGenDesc': '每次空投金额的5%',
-                'secondGen': '第二代',
-                'secondGenDesc': '每次空投金额的1%',
-                'rewardNote': '空投代币《Traveller》，累积领取20次将赠送价值4680元云南双人游，累积50次可获得全国双人游。',
+                'rewardDesc': '当受邀用户成功领取空投时，将触发奖励。您可以选择将奖励转换为标准代币或销毁获取BNB。',
+                'userStatusLabel': '用户状态：',
+                'availableRewardText': '待领取奖励',
+                'claimReward': '领取奖励到奖励余额',
+                'rewardBalanceText': '奖励代币余额',
+                'convertReward': '转换为标准代币',
+                'burnReward': '销毁获取BNB',
+                'firstGen': '推荐奖励',
+                'firstGenDesc': '每次空投金额的25%',
+                'rewardNote': '累积领取20次空投将赠送价值4680元云南双人游，累积50次可获得全国双人游。',
+                'burnNote': '白名单：5000代币 = 0.001 BNB，普通用户：10000代币 = 0.001 BNB',
                 
                 // 联系窗口
                 'contactTitle': '联系我们',
@@ -961,8 +1070,7 @@
                 'minutesLabel': 'Minutes',
                 'secondsLabel': 'Seconds',
                 'referralStatsTitle': 'My Referral Stats',
-                'firstGenLabel': '1st Gen Referrals',
-                'secondGenLabel': '2nd Gen Referrals',
+                'firstGenLabel': 'Referrals',
                 'totalRewardsLabel': 'Total Rewards',
                 'claimedRewardsLabel': 'Claimed Rewards',
                 'shareTitle': 'Share Referral Link',
@@ -970,14 +1078,17 @@
                 
                 // 奖励窗口
                 'rewardTitle': 'Referral Rewards',
-                'rewardDesc': 'Rewards are triggered when your referred users successfully claim airdrops. You can claim rewards at any time.',
-                'availableRewardText': 'Available Rewards',
-                'claimReward': 'Claim Rewards (0.001 BNB)',
-                'firstGen': '1st Generation',
-                'firstGenDesc': '5% of each airdrop amount',
-                'secondGen': '2nd Generation',
-                'secondGenDesc': '1% of each airdrop amount',
-                'rewardNote': 'The airdrop token is Traveller. Accumulate 20 airdrop claims to receive a Yunnan trip for two worth 4680 yuan.',
+                'rewardDesc': 'Rewards are triggered when your referred users successfully claim airdrops. You can convert to standard tokens or burn for BNB.',
+                'userStatusLabel': 'User Status:',
+                'availableRewardText': 'Pending Rewards',
+                'claimReward': 'Claim to Reward Balance',
+                'rewardBalanceText': 'Reward Token Balance',
+                'convertReward': 'Convert to Standard',
+                'burnReward': 'Burn for BNB',
+                'firstGen': 'Referral Reward',
+                'firstGenDesc': '25% of each airdrop amount',
+                'rewardNote': 'Accumulate 20 airdrops for a Yunnan trip, 50 for a national trip.',
+                'burnNote': 'Whitelist: 5000 tokens = 0.001 BNB, Regular: 10000 tokens = 0.001 BNB',
                 
                 // 联系窗口
                 'contactTitle': 'Contact Us',
@@ -1001,1551 +1112,240 @@
         // 当前语言状态
         let currentLang = 'zh';
         
-        // 智能合约配置
+        // 智能合约配置 - 更新为匹配后端
         const CONTRACT_CONFIG = {
-            // Traveller代币合约地址 (需要替换为实际部署的地址)
-            TRAVELLER_TOKEN_ADDRESS: "0x0544b910D4C7A20779a967240ebf5C3D3b6B4aBD",
-            
-            // 空投合约地址 (需要替换为实际部署的地址)
-            AIRDROP_CONTRACT_ADDRESS: "0x0544b910D4C7A20779a967240ebf5C3D3b6B4aBD",
+            // 使用同一个合约地址（代币和空投功能合并）
+            CONTRACT_ADDRESS: "0x0544b910D4C7A20779a967240ebf5C3D3b6B4aBD",
             
             // BSC链配置
             BSC_RPC_URL: "https://bsc-dataseed.binance.org/",
             BSC_CHAIN_ID: "56",
             
-            // 部署者钱包地址 (可更换)
-            DEPLOYER_ADDRESS: "0xEEd8a015892828A832cD2BdEb19a0FFdF33eb052",
-            
-            // 空投数量
-            AIRDROP_AMOUNT: 10000,
-            
             // 空投费用 (BNB)
             AIRDROP_FEE: "0.001",
             
-            // 奖励费用 (BNB)
-            REWARD_FEE: "0.001"
+            // 奖励兑换率
+            NORMAL_EXCHANGE_RATE: 10000, // 普通用户：10000代币 = 0.001 BNB
+            WHITELIST_EXCHANGE_RATE: 5000 // 白名单：5000代币 = 0.001 BNB
         };
 
         // Web3和合约实例
         let web3;
         let userAccount;
-        let travellerTokenContract;
         let airdropContract;
         
         // 智能合约ABI (简化版)
-        const TRAVELLER_TOKEN_ABI =  [
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_totalSupply",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "_feeReceiver",
-				"type": "address"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "user",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "referrer",
-				"type": "address"
-			}
-		],
-		"name": "AirdropClaimed",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "spender",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "value",
-				"type": "uint256"
-			}
-		],
-		"name": "Approval",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_spender",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_value",
-				"type": "uint256"
-			}
-		],
-		"name": "approve",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "success",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_referrer",
-				"type": "address"
-			}
-		],
-		"name": "claimAirdrop",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "claimRewards",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "newFeeReceiver",
-				"type": "address"
-			}
-		],
-		"name": "FeeReceiverUpdated",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "previousOwner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "OwnershipTransferred",
-		"type": "event"
-	},
-	{
-		"inputs": [],
-		"name": "pause",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "account",
-				"type": "address"
-			}
-		],
-		"name": "Paused",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "user",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "referrer",
-				"type": "address"
-			}
-		],
-		"name": "ReferralRegistered",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "user",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"name": "RewardsClaimed",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_feeReceiver",
-				"type": "address"
-			}
-		],
-		"name": "setFeeReceiver",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_to",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_value",
-				"type": "uint256"
-			}
-		],
-		"name": "transfer",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "success",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "from",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "to",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "value",
-				"type": "uint256"
-			}
-		],
-		"name": "Transfer",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_from",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "_to",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_value",
-				"type": "uint256"
-			}
-		],
-		"name": "transferFrom",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "success",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_newOwner",
-				"type": "address"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "unpause",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "account",
-				"type": "address"
-			}
-		],
-		"name": "Unpaused",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_amount",
-				"type": "uint256"
-			}
-		],
-		"name": "withdrawBNB",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_token",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_amount",
-				"type": "uint256"
-			}
-		],
-		"name": "withdrawERC20",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"stateMutability": "payable",
-		"type": "receive"
-	},
-	{
-		"inputs": [],
-		"name": "AIRDROP_AMOUNT",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "AIRDROP_FEE",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "allowance",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "balanceOf",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_user",
-				"type": "address"
-			}
-		],
-		"name": "canClaimAirdrop",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "COOLDOWN_PERIOD",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "decimals",
-		"outputs": [
-			{
-				"internalType": "uint8",
-				"name": "",
-				"type": "uint8"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "feeReceiver",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "FIRST_GEN_REWARD",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_user",
-				"type": "address"
-			}
-		],
-		"name": "getAirdropCount",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_user",
-				"type": "address"
-			}
-		],
-		"name": "getNextAirdropTime",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_user",
-				"type": "address"
-			}
-		],
-		"name": "getUserReferralInfo",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "referrer",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "firstGenCount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "secondGenCount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "referralRewards",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "claimedRewards",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_user",
-				"type": "address"
-			}
-		],
-		"name": "getUserRewards",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_addr",
-				"type": "address"
-			}
-		],
-		"name": "isContract",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "name",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "paused",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "REWARD_FEE",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "SECOND_GEN_REWARD",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "symbol",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "totalSupply",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "users",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "lastAirdropTime",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "airdropCount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "referrer",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "referralRewards",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "claimedRewards",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "firstGenCount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "secondGenCount",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
-];
-
-        const AIRDROP_CONTRACT_ABI = [
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_totalSupply",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "_feeReceiver",
-				"type": "address"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "user",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "referrer",
-				"type": "address"
-			}
-		],
-		"name": "AirdropClaimed",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "owner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "spender",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "value",
-				"type": "uint256"
-			}
-		],
-		"name": "Approval",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_spender",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_value",
-				"type": "uint256"
-			}
-		],
-		"name": "approve",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "success",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_referrer",
-				"type": "address"
-			}
-		],
-		"name": "claimAirdrop",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "claimRewards",
-		"outputs": [],
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "newFeeReceiver",
-				"type": "address"
-			}
-		],
-		"name": "FeeReceiverUpdated",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "previousOwner",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "newOwner",
-				"type": "address"
-			}
-		],
-		"name": "OwnershipTransferred",
-		"type": "event"
-	},
-	{
-		"inputs": [],
-		"name": "pause",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "account",
-				"type": "address"
-			}
-		],
-		"name": "Paused",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "user",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "referrer",
-				"type": "address"
-			}
-		],
-		"name": "ReferralRegistered",
-		"type": "event"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "user",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "amount",
-				"type": "uint256"
-			}
-		],
-		"name": "RewardsClaimed",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_feeReceiver",
-				"type": "address"
-			}
-		],
-		"name": "setFeeReceiver",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_to",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_value",
-				"type": "uint256"
-			}
-		],
-		"name": "transfer",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "success",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "from",
-				"type": "address"
-			},
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "to",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "value",
-				"type": "uint256"
-			}
-		],
-		"name": "Transfer",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_from",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "_to",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_value",
-				"type": "uint256"
-			}
-		],
-		"name": "transferFrom",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "success",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_newOwner",
-				"type": "address"
-			}
-		],
-		"name": "transferOwnership",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "unpause",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"internalType": "address",
-				"name": "account",
-				"type": "address"
-			}
-		],
-		"name": "Unpaused",
-		"type": "event"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "uint256",
-				"name": "_amount",
-				"type": "uint256"
-			}
-		],
-		"name": "withdrawBNB",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_token",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_amount",
-				"type": "uint256"
-			}
-		],
-		"name": "withdrawERC20",
-		"outputs": [],
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"stateMutability": "payable",
-		"type": "receive"
-	},
-	{
-		"inputs": [],
-		"name": "AIRDROP_AMOUNT",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "AIRDROP_FEE",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			},
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "allowance",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "balanceOf",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_user",
-				"type": "address"
-			}
-		],
-		"name": "canClaimAirdrop",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "COOLDOWN_PERIOD",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "decimals",
-		"outputs": [
-			{
-				"internalType": "uint8",
-				"name": "",
-				"type": "uint8"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "feeReceiver",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "FIRST_GEN_REWARD",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_user",
-				"type": "address"
-			}
-		],
-		"name": "getAirdropCount",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_user",
-				"type": "address"
-			}
-		],
-		"name": "getNextAirdropTime",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_user",
-				"type": "address"
-			}
-		],
-		"name": "getUserReferralInfo",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "referrer",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "firstGenCount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "secondGenCount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "referralRewards",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "claimedRewards",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_user",
-				"type": "address"
-			}
-		],
-		"name": "getUserRewards",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "_addr",
-				"type": "address"
-			}
-		],
-		"name": "isContract",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "name",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "owner",
-		"outputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "paused",
-		"outputs": [
-			{
-				"internalType": "bool",
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "REWARD_FEE",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "SECOND_GEN_REWARD",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "symbol",
-		"outputs": [
-			{
-				"internalType": "string",
-				"name": "",
-				"type": "string"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "totalSupply",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "address",
-				"name": "",
-				"type": "address"
-			}
-		],
-		"name": "users",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "lastAirdropTime",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "airdropCount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "address",
-				"name": "referrer",
-				"type": "address"
-			},
-			{
-				"internalType": "uint256",
-				"name": "referralRewards",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "claimedRewards",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "firstGenCount",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "secondGenCount",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}
-];
+        const CONTRACT_ABI = [
+            // 省略ABI代码，与之前相同
+            // 注意：实际部署时需要使用完整的ABI
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_referrer",
+                        "type": "address"
+                    }
+                ],
+                "name": "claimAirdrop",
+                "outputs": [],
+                "stateMutability": "payable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "claimRewards",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "name": "convertRewardsToStandard",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "_amount",
+                        "type": "uint256"
+                    }
+                ],
+                "name": "burnRewardsForBNB",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_user",
+                        "type": "address"
+                    }
+                ],
+                "name": "getUserRewards",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_user",
+                        "type": "address"
+                    }
+                ],
+                "name": "getRewardTokenBalance",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_user",
+                        "type": "address"
+                    }
+                ],
+                "name": "getAirdropCount",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_user",
+                        "type": "address"
+                    }
+                ],
+                "name": "getUserReferralInfo",
+                "outputs": [
+                    {
+                        "internalType": "address",
+                        "name": "referrer",
+                        "type": "address"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "firstGenCount",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "referralRewards",
+                        "type": "uint256"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "claimedRewards",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_user",
+                        "type": "address"
+                    }
+                ],
+                "name": "getNextAirdropTime",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_user",
+                        "type": "address"
+                    }
+                ],
+                "name": "canClaimAirdrop",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_user",
+                        "type": "address"
+                    }
+                ],
+                "name": "isWhitelisted",
+                "outputs": [
+                    {
+                        "internalType": "bool",
+                        "name": "",
+                        "type": "bool"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "_user",
+                        "type": "address"
+                    }
+                ],
+                "name": "getMinimumBurnAmount",
+                "outputs": [
+                    {
+                        "internalType": "uint256",
+                        "name": "",
+                        "type": "uint256"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ];
         
         // DOM元素
         const langToggleBottom = document.getElementById('langToggleBottom');
@@ -2578,11 +1378,14 @@
         
         // 奖励相关
         const claimRewardBtn = document.getElementById('claimReward');
-        const rewardAmountEl = document.getElementById('rewardAmount');
+        const convertRewardBtn = document.getElementById('convertReward');
+        const burnRewardBtn = document.getElementById('burnReward');
+        const referralRewardsAmountEl = document.getElementById('referralRewardsAmount');
+        const rewardTokenBalanceEl = document.getElementById('rewardTokenBalance');
+        const userStatusEl = document.getElementById('userStatus');
         
         // 推荐统计相关
         const firstGenCountEl = document.getElementById('firstGenCount');
-        const secondGenCountEl = document.getElementById('secondGenCount');
         const totalRewardsEl = document.getElementById('totalRewards');
         const claimedRewardsEl = document.getElementById('claimedRewards');
         const referralLinkEl = document.getElementById('referralLink');
@@ -2596,11 +1399,14 @@
         let userData = {
             address: null,
             referrer: null,
-            referralRewards: 0,
+            referralRewards: 0,      // 待领取奖励
+            rewardTokenBalance: 0,   // 奖励代币余额
             airdropCount: 0,
             firstGenCount: 0,
-            secondGenCount: 0,
-            claimedRewards: 0
+            claimedRewards: 0,       // 历史总领取量
+            isWhitelisted: false,
+            burnedTokens: 0,
+            bnbRewards: 0
         };
         
         // 初始化页面
@@ -2680,14 +1486,9 @@
         
         // 初始化合约实例
         function initContracts() {
-            travellerTokenContract = new web3.eth.Contract(
-                TRAVELLER_TOKEN_ABI,
-                CONTRACT_CONFIG.TRAVELLER_TOKEN_ADDRESS
-            );
-            
             airdropContract = new web3.eth.Contract(
-                AIRDROP_CONTRACT_ABI,
-                CONTRACT_CONFIG.AIRDROP_CONTRACT_ADDRESS
+                CONTRACT_ABI,
+                CONTRACT_CONFIG.CONTRACT_ADDRESS
             );
         }
         
@@ -2745,7 +1546,6 @@
         // 更新推荐统计
         function updateReferralStats() {
             firstGenCountEl.textContent = userData.firstGenCount;
-            secondGenCountEl.textContent = userData.secondGenCount;
             totalRewardsEl.textContent = userData.referralRewards;
             claimedRewardsEl.textContent = userData.claimedRewards;
         }
@@ -2791,20 +1591,29 @@
             if (!userAccount || !airdropContract) return;
 
             try {
-                const rewards = await airdropContract.methods.getUserRewards(userAccount).call();
-                userData.referralRewards = web3.utils.fromWei(rewards, 'ether');
+                // 获取待领取奖励
+                const referralRewards = await airdropContract.methods.getUserRewards(userAccount).call();
+                userData.referralRewards = web3.utils.fromWei(referralRewards, 'ether');
                 
+                // 获取奖励代币余额
+                const rewardTokenBalance = await airdropContract.methods.getRewardTokenBalance(userAccount).call();
+                userData.rewardTokenBalance = web3.utils.fromWei(rewardTokenBalance, 'ether');
+                
+                // 获取空投次数
                 const airdropCount = await airdropContract.methods.getAirdropCount(userAccount).call();
                 userData.airdropCount = airdropCount;
                 
-                // 获取推荐统计信息
+                // 获取完整的推荐信息
                 const referralInfo = await airdropContract.methods.getUserReferralInfo(userAccount).call();
                 userData.firstGenCount = referralInfo.firstGenCount;
-                userData.secondGenCount = referralInfo.secondGenCount;
                 userData.claimedRewards = web3.utils.fromWei(referralInfo.claimedRewards, 'ether');
+                userData.referrer = referralInfo.referrer;
+                
+                // 检查白名单状态
+                userData.isWhitelisted = await airdropContract.methods.isWhitelisted(userAccount).call();
                 
                 // 更新UI
-                updateRewardAmount();
+                updateRewardDisplay();
                 updateReferralStats();
                 
                 // 检查下次空投时间
@@ -2880,7 +1689,7 @@
             modal.style.display = 'flex';
             
             if (modal === rewardModal) {
-                updateRewardAmount();
+                updateRewardDisplay();
             }
             
             if (modal === airdropModal) {
@@ -2898,15 +1707,23 @@
             modal.style.display = 'none';
         }
         
-        // 更新奖励金额显示
-        function updateRewardAmount() {
-            rewardAmountEl.textContent = `${userData.referralRewards} Traveller`;
+        // 更新奖励显示
+        function updateRewardDisplay() {
+            // 更新待领取奖励显示
+            referralRewardsAmountEl.textContent = `${userData.referralRewards} TRAVEL`;
             
-            if (userData.referralRewards <= 0) {
-                claimRewardBtn.disabled = true;
-            } else {
-                claimRewardBtn.disabled = false;
-            }
+            // 更新奖励代币余额显示
+            rewardTokenBalanceEl.textContent = `${userData.rewardTokenBalance} TRAVEL`;
+            
+            // 更新用户状态
+            userStatusEl.textContent = userData.isWhitelisted ? 
+                (currentLang === 'zh' ? '白名单用户' : 'Whitelisted User') : 
+                (currentLang === 'zh' ? '普通用户' : 'Regular User');
+            
+            // 根据余额启用/禁用按钮
+            claimRewardBtn.disabled = userData.referralRewards <= 0;
+            convertRewardBtn.disabled = userData.rewardTokenBalance <= 0;
+            burnRewardBtn.disabled = userData.rewardTokenBalance <= 0;
         }
         
         // 连接钱包
@@ -2980,7 +1797,7 @@
             }
         }
         
-        // 领取奖励
+        // 领取奖励到奖励余额
         async function claimReward() {
             if (!userAccount) {
                 alert(currentLang === 'zh' ? '请先连接钱包！' : 'Please connect your wallet first!');
@@ -3001,23 +1818,110 @@
             
             try {
                 const result = await airdropContract.methods.claimRewards().send({
-                    from: userAccount,
-                    value: web3.utils.toWei(CONTRACT_CONFIG.REWARD_FEE, 'ether')
+                    from: userAccount
                 });
                 
                 closeModal(transactionModal);
                 
-                // 更新本地数据
-                userData.referralRewards = 0;
-                updateRewardAmount();
-                updateReferralStats();
+                // 重新加载用户数据
+                await loadUserData();
                 
-                alert(currentLang === 'zh' ? '奖励领取成功！' : 'Rewards claimed successfully!');
+                alert(currentLang === 'zh' ? '奖励已领取到奖励余额！' : 'Rewards claimed to reward balance!');
                 
             } catch (error) {
                 closeModal(transactionModal);
                 console.error("领取奖励失败:", error);
                 alert(currentLang === 'zh' ? '领取奖励失败：' + error.message : 'Claim failed: ' + error.message);
+            }
+        }
+        
+        // 转换奖励为标准代币
+        async function convertReward() {
+            if (!userAccount) {
+                alert(currentLang === 'zh' ? '请先连接钱包！' : 'Please connect your wallet first!');
+                return;
+            }
+            
+            if (!airdropContract) {
+                alert(currentLang === 'zh' ? '合约未初始化，请刷新页面重试' : 'Contract not initialized, please refresh the page');
+                return;
+            }
+            
+            if (userData.rewardTokenBalance <= 0) {
+                alert(currentLang === 'zh' ? '没有可转换的奖励代币！' : 'No reward tokens to convert!');
+                return;
+            }
+            
+            openModal(transactionModal);
+            
+            try {
+                const result = await airdropContract.methods.convertRewardsToStandard().send({
+                    from: userAccount
+                });
+                
+                closeModal(transactionModal);
+                
+                // 重新加载用户数据
+                await loadUserData();
+                
+                alert(currentLang === 'zh' ? '奖励代币已转换为标准代币！' : 'Reward tokens converted to standard tokens!');
+                
+            } catch (error) {
+                closeModal(transactionModal);
+                console.error("转换奖励失败:", error);
+                alert(currentLang === 'zh' ? '转换奖励失败：' + error.message : 'Conversion failed: ' + error.message);
+            }
+        }
+        
+        // 销毁奖励代币获取BNB
+        async function burnReward() {
+            if (!userAccount) {
+                alert(currentLang === 'zh' ? '请先连接钱包！' : 'Please connect your wallet first!');
+                return;
+            }
+            
+            if (!airdropContract) {
+                alert(currentLang === 'zh' ? '合约未初始化，请刷新页面重试' : 'Contract not initialized, please refresh the page');
+                return;
+            }
+            
+            if (userData.rewardTokenBalance <= 0) {
+                alert(currentLang === 'zh' ? '没有可销毁的奖励代币！' : 'No reward tokens to burn!');
+                return;
+            }
+            
+            // 计算最小销毁数量
+            const minBurnAmount = await airdropContract.methods.getMinimumBurnAmount(userAccount).call();
+            const minBurnAmountFormatted = web3.utils.fromWei(minBurnAmount, 'ether');
+            
+            if (parseFloat(userData.rewardTokenBalance) < parseFloat(minBurnAmountFormatted)) {
+                alert(currentLang === 'zh' ? 
+                    `奖励代币余额不足！最小销毁数量为 ${minBurnAmountFormatted} TRAVEL` : 
+                    `Insufficient reward tokens! Minimum burn amount is ${minBurnAmountFormatted} TRAVEL`);
+                return;
+            }
+            
+            openModal(transactionModal);
+            
+            try {
+                // 使用全部奖励代币余额进行销毁
+                const burnAmount = web3.utils.toWei(userData.rewardTokenBalance, 'ether');
+                
+                const result = await airdropContract.methods.burnRewardsForBNB(burnAmount).send({
+                    from: userAccount
+                });
+                
+                closeModal(transactionModal);
+                
+                // 重新加载用户数据
+                await loadUserData();
+                
+                alert(currentLang === 'zh' ? '销毁成功，BNB奖励已发放到您的钱包！' : 'Burn successful, BNB rewards sent to your wallet!');
+                
+            } catch (error) {
+                closeModal(transactionModal);
+                console.error("销毁失败:", error);
+                alert(currentLang === 'zh' ? '销毁失败：' + error.message : 'Burn failed: ' + error.message);
             }
         }
         
@@ -3070,6 +1974,8 @@
         // 领取按钮点击事件
         claimAirdropBtn.addEventListener('click', claimAirdrop);
         claimRewardBtn.addEventListener('click', claimReward);
+        convertRewardBtn.addEventListener('click', convertReward);
+        burnRewardBtn.addEventListener('click', burnReward);
         
         // 点击模态框外部关闭
         window.addEventListener('click', (e) => {
@@ -3113,6 +2019,3 @@
     </script>
 </body>
 </html>
-
-
-
