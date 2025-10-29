@@ -1134,7 +1134,7 @@
         let userAccount;
         let airdropContract;
         
-        // 智能合约ABI (简化版)
+        // 智能合约ABI
         const CONTRACT_ABI = [
             {
                 "inputs": [
@@ -2442,7 +2442,7 @@
             }
         }
         
-        // 处理URL中的推荐关系
+        // 修复的推荐关系处理函数
         function processReferralFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
             const refAddress = urlParams.get('ref');
@@ -2450,17 +2450,29 @@
             console.log("URL中的推荐参数:", refAddress);
 
             if (refAddress && web3 && web3.utils.isAddress(refAddress)) {
-                // 验证地址有效性
-                if (web3.utils.isAddress(refAddress) && refAddress.toLowerCase() !== userAccount?.toLowerCase()) {
-                    userData.referrer = refAddress;
-                    localStorage.setItem('referrer', refAddress);
-                    
-                    console.log("推荐人已设置:", refAddress);
-                    
-                    // 显示推荐提示
-                    showReferralNotification(refAddress);
+                // 验证地址有效性并防止自我推荐
+                const isValidReferrer = web3.utils.isAddress(refAddress) && 
+                                       userAccount && 
+                                       refAddress.toLowerCase() !== userAccount.toLowerCase();
+                
+                if (isValidReferrer) {
+                    // 检查是否已经设置过推荐人
+                    if (!userData.referrer || userData.referrer === "0x0000000000000000000000000000000000000000") {
+                        userData.referrer = refAddress;
+                        localStorage.setItem('referrer', refAddress);
+                        
+                        console.log("推荐人已设置:", refAddress);
+                        
+                        // 显示推荐提示
+                        showReferralNotification(refAddress);
+                    } else {
+                        console.log("用户已有推荐人:", userData.referrer, "忽略新的推荐人:", refAddress);
+                    }
                 } else {
                     console.log("无效的推荐地址或自我推荐");
+                    if (userAccount && refAddress.toLowerCase() === userAccount.toLowerCase()) {
+                        alert(currentLang === 'zh' ? '不能使用自己的地址作为推荐人！' : 'Cannot use your own address as referrer!');
+                    }
                 }
             } else {
                 // 检查本地存储中是否有推荐人
@@ -2532,12 +2544,21 @@
             });
         }
         
-        // 加载用户数据
+        // 增强的用户数据加载
         async function loadUserData() {
             if (!userAccount || !airdropContract) return;
 
             try {
-                console.log("开始加载用户数据:", userAccount);
+                console.log("=== 开始加载用户数据 ===");
+                console.log("用户地址:", userAccount);
+                
+                // 获取完整的推荐信息
+                const referralInfo = await airdropContract.methods.getUserReferralInfo(userAccount).call();
+                console.log("合约返回的推荐信息:", referralInfo);
+                
+                userData.firstGenCount = referralInfo.firstGenCount;
+                userData.claimedRewards = web3.utils.fromWei(referralInfo.claimedRewards, 'ether');
+                userData.referrer = referralInfo.referrer;
                 
                 // 获取待领取奖励
                 const referralRewards = await airdropContract.methods.getUserRewards(userAccount).call();
@@ -2551,16 +2572,17 @@
                 const airdropCount = await airdropContract.methods.getAirdropCount(userAccount).call();
                 userData.airdropCount = airdropCount;
                 
-                // 获取完整的推荐信息
-                const referralInfo = await airdropContract.methods.getUserReferralInfo(userAccount).call();
-                userData.firstGenCount = referralInfo.firstGenCount;
-                userData.claimedRewards = web3.utils.fromWei(referralInfo.claimedRewards, 'ether');
-                userData.referrer = referralInfo.referrer;
-                
                 // 检查白名单状态
                 userData.isWhitelisted = await airdropContract.methods.isWhitelisted(userAccount).call();
                 
-                console.log("用户数据加载完成:", userData);
+                console.log("=== 用户数据加载完成 ===");
+                console.log("推荐人:", userData.referrer);
+                console.log("推荐人数:", userData.firstGenCount);
+                console.log("待领取奖励:", userData.referralRewards);
+                console.log("已领取奖励:", userData.claimedRewards);
+                console.log("奖励代币余额:", userData.rewardTokenBalance);
+                console.log("空投次数:", userData.airdropCount);
+                console.log("白名单状态:", userData.isWhitelisted);
                 
                 // 更新UI
                 updateRewardDisplay();
@@ -2570,12 +2592,16 @@
                 const nextAirdropTime = await airdropContract.methods.getNextAirdropTime(userAccount).call();
                 const now = Math.floor(Date.now() / 1000);
                 
+                console.log("下次空投时间:", nextAirdropTime, "当前时间:", now);
+                
                 if (nextAirdropTime > now) {
                     remainingTime = nextAirdropTime - now;
                     startCountdown();
                     claimAirdropBtn.disabled = true;
+                    console.log("冷却中，剩余时间:", remainingTime, "秒");
                 } else {
                     claimAirdropBtn.disabled = false;
+                    console.log("可以领取空投");
                 }
                 
             } catch (error) {
@@ -2697,7 +2723,7 @@
             }
         }
         
-        // 领取空投 - 修复版本
+        // 修复的空投领取函数
         async function claimAirdrop() {
             if (!userAccount) {
                 alert(currentLang === 'zh' ? '请先连接钱包！' : 'Please connect your wallet first!');
@@ -2712,26 +2738,29 @@
             openModal(transactionModal);
 
             try {
-                // 🔧 修复1：确保推荐关系正确传递
+                // 🔧 修复：正确处理推荐关系
                 let referrer = userData.referrer;
                 
-                // 如果没有推荐人，使用零地址
-                if (!referrer || !web3.utils.isAddress(referrer)) {
-                    referrer = "0x0000000000000000000000000000000000000000";
-                }
-                
-                console.log("领取空投参数:", {
-                    user: userAccount,
-                    referrer: referrer,
-                    fee: CONTRACT_CONFIG.AIRDROP_FEE
+                console.log("领取空投前的状态:", {
+                    用户地址: userAccount,
+                    推荐人: referrer,
+                    推荐人是否有效: referrer && web3.utils.isAddress(referrer) && referrer.toLowerCase() !== userAccount.toLowerCase()
                 });
+
+                // 验证推荐人有效性
+                if (!referrer || !web3.utils.isAddress(referrer) || referrer.toLowerCase() === userAccount.toLowerCase()) {
+                    referrer = "0x0000000000000000000000000000000000000000";
+                    console.log("使用零地址作为推荐人");
+                } else {
+                    console.log("使用有效推荐人:", referrer);
+                }
 
                 const result = await airdropContract.methods.claimAirdrop(referrer).send({
                     from: userAccount,
                     value: web3.utils.toWei(CONTRACT_CONFIG.AIRDROP_FEE, 'ether')
                 });
 
-                console.log("空投领取成功:", result);
+                console.log("空投领取交易结果:", result);
                 
                 closeModal(transactionModal);
                 openModal(successModal);
@@ -2750,7 +2779,8 @@
                 // 开始倒计时
                 startCountdown();
                 
-                // 🔧 修复2：等待区块确认后重新加载数据
+                // 等待3秒后重新加载数据，确保区块链状态更新
+                console.log("等待3秒后重新加载数据...");
                 setTimeout(async () => {
                     await loadUserData();
                 }, 3000);
@@ -2766,6 +2796,8 @@
                     errorMsg = currentLang === 'zh' ? '冷却时间未过，请等待4小时' : 'Cooldown period not passed, please wait 4 hours';
                 } else if (errorMsg.includes("Circular referral detected")) {
                     errorMsg = currentLang === 'zh' ? '检测到循环推荐，请更换推荐人' : 'Circular referral detected, please change referrer';
+                } else if (errorMsg.includes("Cannot refer your referrer")) {
+                    errorMsg = currentLang === 'zh' ? '不能推荐您的推荐人' : 'Cannot refer your referrer';
                 }
                 
                 alert((currentLang === 'zh' ? '领取空投失败：' : 'Claim failed: ') + errorMsg);
@@ -2899,6 +2931,35 @@
                 alert(currentLang === 'zh' ? '销毁失败：' + error.message : 'Burn failed: ' + error.message);
             }
         }
+
+        // 调试函数：手动检查推荐状态
+        async function debugReferralStatus() {
+            if (!userAccount || !airdropContract) {
+                console.log("请先连接钱包");
+                return;
+            }
+            
+            console.log("=== 推荐状态调试 ===");
+            console.log("当前用户:", userAccount);
+            console.log("前端存储的推荐人:", userData.referrer);
+            
+            try {
+                const referralInfo = await airdropContract.methods.getUserReferralInfo(userAccount).call();
+                console.log("合约中的推荐信息:", referralInfo);
+                
+                const canClaim = await airdropContract.methods.canClaimAirdrop(userAccount).call();
+                console.log("是否可以领取空投:", canClaim);
+                
+                const nextAirdropTime = await airdropContract.methods.getNextAirdropTime(userAccount).call();
+                console.log("下次空投时间:", new Date(nextAirdropTime * 1000));
+                
+            } catch (error) {
+                console.error("调试失败:", error);
+            }
+        }
+
+        // 在控制台中可以调用 debugReferralStatus() 来检查状态
+        window.debugReferralStatus = debugReferralStatus;
         
         // 事件监听器
         langToggleBottom.addEventListener('click', () => {
