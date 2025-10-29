@@ -736,7 +736,7 @@
         <div class="modal-content">
             <span class="close-modal" id="closeAirdrop">&times;</span>
             <h2 class="modal-title" id="airdropTitle">领取《Traveller》空投</h2>
-            <p id="airdropDesc">随时可以领取《Traveller》代币，每次10000枚，累积领取20次可获得价值4680元的云南双人游，累积50次可获得全国双人游！</p>
+            <p id="airdropDesc">每4小时可以领取一次《Traveller》代币，每次10000枚，累积领取20次可获得价值4680元的云南双人游，累积50次可获得全国双人游！</p>
             
             <!-- 推荐链接部分 -->
             <div class="referral-section" id="referralSection">
@@ -902,8 +902,10 @@
                 
                 // 空投窗口
                 'airdropTitle': '领取《Traveller》空投',
-                'airdropDesc': '随时可以领取《Traveller》代币，每次10000枚，累积领取20次可获得价值4680元的云南双人游，累积50次可获得全国双人游！',
+                'airdropDesc': '每4小时可以领取一次《Traveller》代币，每次10000枚，累积领取20次可获得价值4680元的云南双人游，累积50次可获得全国双人游！',
                 'claimAirdrop': '领取空投 (0.001 BNB)',
+                'claimCooldown': '冷却中',
+                'claimReady': '领取空投 (0.001 BNB)',
                 'referralStatsTitle': '我的推荐统计',
                 'firstGenLabel': '第一代推荐',
                 'totalRewardsLabel': '累计奖励',
@@ -955,8 +957,10 @@
                 
                 // 空投窗口
                 'airdropTitle': 'Claim Traveller Airdrop',
-                'airdropDesc': 'Claim Traveller tokens anytime. Accumulate 20 claims to get a Yunnan trip for two worth 4680 yuan!',
+                'airdropDesc': 'Claim Traveller tokens every 4 hours. Accumulate 20 claims to get a Yunnan trip for two worth 4680 yuan!',
                 'claimAirdrop': 'Claim Airdrop (0.001 BNB)',
+                'claimCooldown': 'Cooldown',
+                'claimReady': 'Claim Airdrop (0.001 BNB)',
                 'referralStatsTitle': 'My Referral Stats',
                 'firstGenLabel': '1st Gen Referrals',
                 'totalRewardsLabel': 'Total Rewards',
@@ -1000,10 +1004,10 @@
         // 智能合约配置
         const CONTRACT_CONFIG = {
             // Traveller代币合约地址 (需要替换为实际部署的地址)
-            TRAVELLER_TOKEN_ADDRESS: "0x7b81238D4064438F5B60ed4e2751772506c38723",
+            TRAVELLER_TOKEN_ADDRESS: "0x1bFF884e2e69a7a72B69D689A157C2fC7A60052e",
             
             // 空投合约地址 (需要替换为实际部署的地址)
-            AIRDROP_CONTRACT_ADDRESS: "0x7b81238D4064438F5B60ed4e2751772506c38723",
+            AIRDROP_CONTRACT_ADDRESS: "0x1bFF884e2e69a7a72B69D689A157C2fC7A60052e",
             
             // BSC链配置
             BSC_RPC_URL: "https://bsc-dataseed.binance.org/",
@@ -1609,6 +1613,19 @@
 	},
 	{
 		"inputs": [],
+		"name": "CLAIM_COOLDOWN",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
 		"name": "decimals",
 		"outputs": [
 			{
@@ -1660,6 +1677,25 @@
 				"type": "address"
 			}
 		],
+		"name": "getRemainingCooldown",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_user",
+				"type": "address"
+			}
+		],
 		"name": "getUserReferralInfo",
 		"outputs": [
 			{
@@ -1686,6 +1722,11 @@
 				"internalType": "bool",
 				"name": "isWhitelisted",
 				"type": "bool"
+			},
+			{
+				"internalType": "uint256",
+				"name": "lastClaimTime",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -1846,6 +1887,11 @@
 				"internalType": "bool",
 				"name": "isWhitelisted",
 				"type": "bool"
+			},
+			{
+				"internalType": "uint256",
+				"name": "lastClaimTime",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
@@ -1904,7 +1950,9 @@
             airdropCount: 0,
             firstGenCount: 0,
             claimedRewards: 0,
-            isWhitelisted: false
+            isWhitelisted: false,
+            lastClaimTime: 0,
+            remainingCooldown: 0
         };
         
         // 初始化页面
@@ -1923,6 +1971,9 @@
             
             // 检查是否为移动设备
             checkMobileView();
+            
+            // 启动冷却时间定时器
+            startCooldownTimer();
         }
         
         // 初始化Web3
@@ -1972,7 +2023,7 @@
             
             airdropContract = new web3.eth.Contract(
                 TRAVELLER_TOKEN_ABI,
-                CONTRACT_CONFIG.AIRDROP_CONTRACT_ADDRESS
+                CONFIG.AIRDROP_CONTRACT_ADDRESS
             );
         }
         
@@ -2041,8 +2092,8 @@
             document.getElementById('shareTelegram').addEventListener('click', () => {
                 const referralLink = referralLinkEl.value;
                 const shareText = currentLang === 'zh' 
-                    ? `加入探险旅行DApp，领取Traveller代币空投！随时可领取，累积20次可获得免费云南双人游，累积50次可获得全国双人游！我的推荐链接：${referralLink}`
-                    : `Join Adventure Travel DApp and claim Traveller token airdrop! Claim anytime, get 20 claims for a free Yunnan trip for two! My referral link: ${referralLink}`;
+                    ? `加入探险旅行DApp，领取Traveller代币空投！每4小时可领取一次，累积20次可获得免费云南双人游，累积50次可获得全国双人游！我的推荐链接：${referralLink}`
+                    : `Join Adventure Travel DApp and claim Traveller token airdrop! Claim every 4 hours, get 20 claims for a free Yunnan trip for two! My referral link: ${referralLink}`;
                 
                 const url = `https://t.me/share/url?url=${encodeURIComponent(referralLink)}&text=${encodeURIComponent(shareText)}`;
                 window.open(url, '_blank');
@@ -2052,8 +2103,8 @@
             document.getElementById('shareTwitter').addEventListener('click', () => {
                 const referralLink = referralLinkEl.value;
                 const shareText = currentLang === 'zh' 
-                    ? `加入探险旅行DApp，领取Traveller代币空投！随时可领取，累积20次可获得免费云南双人游，累积50次可获得全国双人游！${referralLink}`
-                    : `Join Adventure Travel DApp and claim Traveller token airdrop! Claim anytime, get 20 claims for a free Yunnan trip for two! ${referralLink}`;
+                    ? `加入探险旅行DApp，领取Traveller代币空投！每4小时可领取一次，累积20次可获得免费云南双人游，累积50次可获得全国双人游！${referralLink}`
+                    : `Join Adventure Travel DApp and claim Traveller token airdrop! Claim every 4 hours, get 20 claims for a free Yunnan trip for two! ${referralLink}`;
                 
                 const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
                 window.open(url, '_blank');
@@ -2063,8 +2114,8 @@
             document.getElementById('shareWhatsapp').addEventListener('click', () => {
                 const referralLink = referralLinkEl.value;
                 const shareText = currentLang === 'zh' 
-                    ? `加入探险旅行DApp，领取Traveller代币空投！随时可领取，累积20次可获得免费云南双人游，累积50次可获得全国双人游！我的推荐链接：${referralLink}`
-                    : `Join Adventure Travel DApp and claim Traveller token airdrop! Claim anytime, get 20 claims for a free Yunnan trip for two! My referral link: ${referralLink}`;
+                    ? `加入探险旅行DApp，领取Traveller代币空投！每4小时可领取一次，累积20次可获得免费云南双人游，累积50次可获得全国双人游！我的推荐链接：${referralLink}`
+                    : `Join Adventure Travel DApp and claim Traveller token airdrop! Claim every 4 hours, get 20 claims for a free Yunnan trip for two! My referral link: ${referralLink}`;
                 
                 const url = `https://wa.me/?text=${encodeURIComponent(shareText)}`;
                 window.open(url, '_blank');
@@ -2082,23 +2133,57 @@
                 userData.referralRewards = web3.utils.fromWei(referralInfo.referralRewards, 'ether');
                 userData.claimedRewards = web3.utils.fromWei(referralInfo.claimedRewards, 'ether');
                 userData.isWhitelisted = referralInfo.isWhitelisted;
+                userData.lastClaimTime = parseInt(referralInfo.lastClaimTime);
                 
                 // 获取空投次数
                 const airdropCount = await airdropContract.methods.getAirdropCount(userAccount).call();
                 userData.airdropCount = airdropCount;
                 
+                // 获取剩余冷却时间
+                const remainingCooldown = await airdropContract.methods.getRemainingCooldown(userAccount).call();
+                userData.remainingCooldown = parseInt(remainingCooldown);
+                
                 // 更新UI
                 updateRewardAmount();
                 updateReferralStats();
                 updateWhitelistInfo();
-                
-                // 检查空投状态
-                const canClaim = await airdropContract.methods.canClaimAirdrop(userAccount).call();
-                claimAirdropBtn.disabled = !canClaim;
+                updateClaimButtonState();
                 
             } catch (error) {
                 console.error("加载用户数据失败:", error);
             }
+        }
+        
+        // 更新领取按钮状态
+        function updateClaimButtonState() {
+            if (userData.remainingCooldown > 0) {
+                // 计算剩余时间（小时、分钟、秒）
+                const hours = Math.floor(userData.remainingCooldown / 3600);
+                const minutes = Math.floor((userData.remainingCooldown % 3600) / 60);
+                const seconds = userData.remainingCooldown % 60;
+                
+                const timeString = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                claimAirdropBtn.disabled = true;
+                claimAirdropBtn.textContent = currentLang === 'zh' 
+                    ? `冷却中 (${timeString})` 
+                    : `Cooldown (${timeString})`;
+            } else {
+                claimAirdropBtn.disabled = false;
+                claimAirdropBtn.textContent = currentLang === 'zh' 
+                    ? '领取空投 (0.001 BNB)' 
+                    : 'Claim Airdrop (0.001 BNB)';
+            }
+        }
+        
+        // 启动冷却时间定时器
+        function startCooldownTimer() {
+            setInterval(() => {
+                if (userData.remainingCooldown > 0) {
+                    userData.remainingCooldown--;
+                    updateClaimButtonState();
+                }
+            }, 1000);
         }
         
         // 更新页面语言
@@ -2114,6 +2199,8 @@
             
             // 更新推荐链接
             updateReferralLink();
+            // 更新领取按钮状态
+            updateClaimButtonState();
         }
         
         // 检查是否为移动视图
@@ -2137,6 +2224,7 @@
             if (modal === airdropModal) {
                 updateReferralStats();
                 updateReferralLink();
+                updateClaimButtonState();
             }
             
             if (window.innerWidth <= 768) {
